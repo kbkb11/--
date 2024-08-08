@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Baidu Map</title>
+    <style type="text/css">
+        html, body { height: 100%; margin: 0; padding: 0; }
+        #container { height: 500px; width: 80%; margin: 0 auto; transition: all 0.5s ease; }
+        #container.fullscreen { height: 100%; width: 100%; position: fixed; top: 0; left: 0; margin: 0; z-index: 9999; }
+    </style>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=rJFMfWTBHKtmJBYqFySuoAlH3AqDJB7u"></script>
+</head>
+<body>
+<div id="container"></div>
+<script type="text/javascript">
+    // 从Java传入的坐标
+    var latitude = [[${latitude}]];
+    var longitude = [[${longitude}]];
+
+    // 创建地图实例
+    var map = new BMap.Map("container", {
+        coordsType: 5
+    });
+    // 使用传入的坐标
+    var point = new BMap.Point(longitude, latitude);
+    map.centerAndZoom(point, 15);
+    map.enableScrollWheelZoom(true);
+
+    // 创建红色标注图标
+    var myIcon = new BMap.Icon("http://maps.google.com/mapfiles/ms/icons/red-dot.png", new BMap.Size(32, 32));
+
+    // 创建标注并添加到地图
+    var marker = new BMap.Marker(point, {icon: myIcon});
+    map.addOverlay(marker);
+
+    // 添加点击事件
+    marker.addEventListener("click", function(){
+        alert("当前位置：" + longitude + ", " + latitude);
+    });
+
+</script>
+</body>
+</html>

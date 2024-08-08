@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: no-repeat center center fixed;
+            background-size: cover;
+            overflow: hidden;
+        }
+
+        /* Set the background image with blur effect */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('/static/login_register.png');
+            background-size: cover;
+            filter: blur(8px);
+            z-index: -1;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8); /* 更透明的白色背景 */
+            padding: 40px 20px; /* 调整内部边距以确保内容居中显示 */
+            width: 300px; /* 固定宽度 */
+            height: auto; /* 自动调整高度 */
+            margin: auto; /* 水平和垂直居中 */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        label, input, button, select {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        input, button, select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background-color: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkblue;
+        }
+
+        a {
+            text-align: center;
+            margin-top: 20px;
+            color: #000;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2>注册</h2>
+    <form id="registerForm" action="/user/register" method="post">
+        <label for="username">用户名:</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">密码:</label>
+        <input type="password" id="password" name="password" required>
+
+        <!-- Optional role selection -->
+        <!--
+        <label for="role">角色:</label>
+        <select id="role" name="role">
+            <option value="user">普通用户</option>
+            <option value="admin">管理员</option>
+        </select>
+        -->
+
+        <button type="submit">注册</button>
+    </form>
+</div>
+</body>
+
+<script>
+    document.getElementById('registerForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        // const role = document.getElementById('role') ? document.getElementById('role').value : 'user';  // Role selection (if enabled)
+
+        fetch('/user/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username, password: password })
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data);
+            if (data === "注册成功") {
+                window.location.href = "./board/board.html";  // Redirect to success page
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>

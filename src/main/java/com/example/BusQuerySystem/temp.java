@@ -5,21 +5,13 @@
 package com.example.BusQuerySystem;
 
 import com.example.BusQuerySystem.service.serviceImpl.BaiduConfigService;
-import com.example.BusQuerySystem.utils.gson.LocationResponse;
+import com.example.BusQuerySystem.utils.gson.LocationIpResponse;
+import com.example.BusQuerySystem.utils.gson.LocationNameResponse;
 import com.example.BusQuerySystem.utils.ip.HttpRequestUtils;
 import com.example.BusQuerySystem.utils.ip.SNUtils;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.util.UriUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.URLEncoder;
-import java.security.NoSuchAlgorithmException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -75,32 +67,23 @@ public class temp {
 
         // 设置API请求的参数
         Map<String, String> params = new LinkedHashMap<>();
-//        params.put("ip", "182.100.57.235");
-        params.put("coor", "bd09ll");
+        params.put("address", "萍乡市风扬茶楼");
+        params.put("output", "json");
         params.put("ak", AK);
 
-        // 设置AK和SK
-        String AK = "Cuf5RfkxkA5bQTAhpczBkplGHvNqJgVz";
-        String SK = "xkmpgAM2NR1abPPWWsS5DXBUb2KYuWUY";
-
         // 计算SN签名
-        String sn = SNUtils.calculateSn(params, AK, SK,"/location/ip?");
+        String sn = SNUtils.calculateSn(params, AK, SK, "/geocoding/v3?");
         params.put("sn", sn);
 
         // 发送HTTP GET请求并获取响应
-        String response = HttpRequestUtils.requestGetSN("http://api.map.baidu.com/location/ip?", params);
-        System.out.println(response);
+        String response = HttpRequestUtils.requestGetSN("http://api.map.baidu.com/geocoding/v3?", params);
 
         // 使用 Gson 解析 JSON 数据
         Gson gson = new Gson();
-        LocationResponse locationResponse = gson.fromJson(response, LocationResponse.class);
+        LocationNameResponse locationIpResponse = gson.fromJson(response, LocationNameResponse.class);
 
-        // 输出解析后的数据
-        System.out.println("Address: " + locationResponse.getContent().getAddress());
-        System.out.println("City: " + locationResponse.getContent().getAddressDetail().getCity());
-        System.out.println("Province: " + locationResponse.getContent().getAddressDetail().getProvince());
-        System.out.println("Longitude (x): " + locationResponse.getContent().getPoint().getX());
-        System.out.println("Latitude (y): " + locationResponse.getContent().getPoint().getY());
+        System.out.println(locationIpResponse.getResult().getLocation().getLat());
+        System.out.println(locationIpResponse.getResult().getLocation().getLng());
 
     }
 

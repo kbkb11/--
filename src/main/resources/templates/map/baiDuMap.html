@@ -1,44 +1,143 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />-->
+<!--    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />-->
+<!--    <title>Baidu Map</title>-->
+<!--    <style type="text/css">-->
+<!--        html, body { height: 100%; margin: 0; padding: 0; }-->
+<!--        #container { height: 500px; width: 80%; margin: 0 auto; transition: all 0.5s ease; }-->
+<!--        #container.fullscreen { height: 100%; width: 100%; position: fixed; top: 0; left: 0; margin: 0; z-index: 9999; }-->
+<!--    </style>-->
+<!--    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=rJFMfWTBHKtmJBYqFySuoAlH3AqDJB7u"></script>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div id="container"></div>-->
+<!--<script type="text/javascript">-->
+<!--    // 从Java传入的坐标-->
+<!--    var latitude = [[${latitude}]];-->
+<!--    var longitude = [[${longitude}]];-->
+
+<!--    // 创建地图实例-->
+<!--    var map = new BMap.Map("container", {-->
+<!--        coordsType: 5-->
+<!--    });-->
+<!--    // 使用传入的坐标-->
+<!--    var point = new BMap.Point(longitude, latitude);-->
+<!--    map.centerAndZoom(point, 15);-->
+<!--    map.enableScrollWheelZoom(true);-->
+
+<!--&lt;!&ndash;    // 创建红色标注图标&ndash;&gt;-->
+<!--&lt;!&ndash;    var myIcon = new BMap.Icon("http://maps.google.com/mapfiles/ms/icons/red-dot.png", new BMap.Size(32, 32));&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // 创建标注并添加到地图&ndash;&gt;-->
+<!--&lt;!&ndash;    var marker = new BMap.Marker(point, {icon: myIcon});&ndash;&gt;-->
+<!--&lt;!&ndash;    map.addOverlay(marker);&ndash;&gt;-->
+
+<!--&lt;!&ndash;    // 添加点击事件&ndash;&gt;-->
+<!--&lt;!&ndash;    marker.addEventListener("click", function(){&ndash;&gt;-->
+<!--&lt;!&ndash;        alert("当前位置：" + longitude + ", " + latitude);&ndash;&gt;-->
+<!--&lt;!&ndash;    });&ndash;&gt;-->
+
+<!--</script>-->
+<!--</body>-->
+<!--</html>-->
+
+
+
+
+
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Baidu Map</title>
     <style type="text/css">
-        html, body { height: 100%; margin: 0; padding: 0; }
-        #container { height: 500px; width: 80%; margin: 0 auto; transition: all 0.5s ease; }
-        #container.fullscreen { height: 100%; width: 100%; position: fixed; top: 0; left: 0; margin: 0; z-index: 9999; }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: "微软雅黑";
+        }
+        #container {
+            height: 500px;
+            width: 80%;
+            margin: 0 auto;
+            transition: all 0.5s ease;
+        }
+        #container.fullscreen {
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            margin: 0;
+            z-index: 9999;
+        }
+        #input-form {
+            text-align: center;
+            margin-top: 10px;
+        }
+        #input-form input {
+            margin: 0 5px;
+            padding: 5px;
+        }
+        #input-form button {
+            padding: 5px 10px;
+        }
+        #result {
+            margin-top: 10px;
+        }
     </style>
     <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=rJFMfWTBHKtmJBYqFySuoAlH3AqDJB7u"></script>
 </head>
 <body>
-<div id="container"></div>
-<script type="text/javascript">
-    // 从Java传入的坐标
-    var latitude = [[${latitude}]];
-    var longitude = [[${longitude}]];
 
-    // 创建地图实例
-    var map = new BMap.Map("container", {
-        coordsType: 5
-    });
-    // 使用传入的坐标
-    var point = new BMap.Point(longitude, latitude);
-    map.centerAndZoom(point, 15);
+<div id="input-form">
+    <form id="locationForm" method="POST" action="#" onsubmit="return processLocations()">
+        <input type="text" id="startLocation" name="startLocation" placeholder="起点位置" required>
+        <input type="text" id="endLocation" name="endLocation" placeholder="终点位置" required>
+        <button type="submit">查询路线</button>
+    </form>
+</div>
+
+<div id="container"></div>
+<div id="result"></div>
+
+<script type="text/javascript">
+    var map = new BMap.Map("container");
+    var currentLat = [[${latitude}]];
+    var currentLng = [[${longitude}]];
+
+    map.centerAndZoom(new BMap.Point(currentLng, currentLat), 14);
     map.enableScrollWheelZoom(true);
 
-    // 创建红色标注图标
-    var myIcon = new BMap.Icon("http://maps.google.com/mapfiles/ms/icons/red-dot.png", new BMap.Size(32, 32));
+    function processLocations() {
+        var startLocation = document.getElementById("startLocation").value;
+        var endLocation = document.getElementById("endLocation").value;
 
-    // 创建标注并添加到地图
-    var marker = new BMap.Marker(point, {icon: myIcon});
-    map.addOverlay(marker);
+        fetch(`/processLocations?startLocation=${encodeURIComponent(startLocation)}&endLocation=${encodeURIComponent(endLocation)}`)
+            .then(response => response.json())
+            .then(data => {
+                var startLat = data.startLat;
+                var startLng = data.startLng;
+                var endLat = data.endLat;
+                var endLng = data.endLng;
 
-    // 添加点击事件
-    marker.addEventListener("click", function(){
-        alert("当前位置：" + longitude + ", " + latitude);
-    });
+                var start = new BMap.Point(startLng, startLat);
+                var end = new BMap.Point(endLng, endLat);
 
+                var transit = new BMap.TransitRoute(map, {
+                    renderOptions: {map: map, panel: "result"}
+                });
+                transit.search(start, end);
+            });
+
+        return false; // Prevent form submission
+    }
 </script>
+
 </body>
 </html>
